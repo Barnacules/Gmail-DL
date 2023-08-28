@@ -27,11 +27,9 @@ if not creds or not creds.valid:
 service = build("gmail", "v1", credentials=creds)
 
 # Calculate the date 1 years ago from today
-from_date = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime("%Y/%m/%d")
+from_date = (datetime.datetime.now() - datetime.timedelta(days=365 * 1)).strftime('%Y-%m-%d')
 
 print(f"Looking for all emails since {from_date}")
-
-
 
 # Search for emails with attachments from the last 10 years
 query = f"has:attachment after:{from_date}"
@@ -40,21 +38,16 @@ all_messages = []
 count = 0
 
 while True:
-    results = service.users().messages().list(userId="me", q=query, pageToken=page_token).execute() 
+    count+=1
+    print(f"Emails Downloaded: {count}", end="\r")
+
+    results = service.users().messages().list(userId="me", q=query, pageToken=page_token).execute()
     messages = results.get("messages", [])
     
     if not messages:
         break
-
-    count = count + len(messages)
-    print(f"Emails Found: {count}", end="\r")
  
     all_messages.extend(messages)
-  
-    # Check if nextPageToken is missing or empty
-    if "nextPageToken" not in results:
-        break
-
     page_token = results.get('nextPageToken')
 
 total_attachments = len(all_messages)
@@ -64,7 +57,6 @@ attachments_downloaded = 0
 start_time = time.time()
 
 for idx, message in enumerate(all_messages, start=1):
-    print("test")
     msg_data = service.users().messages().get(userId="me", id=message["id"]).execute()
     payload = msg_data['payload']
     parts = payload['parts']
