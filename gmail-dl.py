@@ -27,7 +27,7 @@ if not creds or not creds.valid:
 service = build("gmail", "v1", credentials=creds)
 
 # Calculate the date 1 years ago from today
-from_date = (datetime.datetime.now() - datetime.timedelta(days=365)).strftime('%Y-%m-%d')
+from_date = (datetime.datetime.now() - datetime.timedelta(days=365 * 10)).strftime('%Y-%m-%d')
 
 print(f"Looking for all emails since {from_date}")
 
